@@ -99,14 +99,11 @@ st.markdown("""
     background-color: #333333;
 }
 .stRadio label {
-    color: #4B0082; /* Thanos purple for player names */
+    color: #F5F5F5;
     font-size: 1.1em;
-    font-weight: bold;
-    padding: 4px;
-    margin-bottom: 4px;
 }
 .stRadio input:checked + label {
-    color: #FFFFFF; /* White text for selected option */
+    color: #FFD700; /* Gold text for selected option */
     background-color: #4B0082; /* Purple background for selected */
     border-radius: 5px;
     padding: 4px;
@@ -197,7 +194,7 @@ if st.session_state.rosters_fetched and not st.session_state.show_gif and not st
                 f"Select the one player to save from the snap for {team_name}",
                 options=player_options,
                 index=0,
-                key=f"immune_{team_name}_{random.randint(0, 10000)}"  # Unique key
+                key=f"immune_{team_name}"
             )
             if selected_player != "None":
                 st.session_state.immune_players[team_name] = next(
@@ -205,11 +202,6 @@ if st.session_state.rosters_fetched and not st.session_state.show_gif and not st
                 )
             else:
                 st.session_state.immune_players[team_name] = None
-            # Debug: Display current selection
-            if st.session_state.immune_players[team_name]:
-                st.write(f"Current immune player for {team_name}: {st.session_state.immune_players[team_name]['name']}")
-            else:
-                st.write(f"No immune player selected for {team_name}")
         submit_immunities = st.form_submit_button("Confirm Selections and Perform Thanos Snap")
 
     if submit_immunities:
