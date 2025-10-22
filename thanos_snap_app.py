@@ -98,16 +98,34 @@ st.markdown("""
 .stDataFrame tr:nth-child(even) {
     background-color: #333333;
 }
-.stRadio label {
-    color: #F5F5F5;
+
+/* === Updated Radio Button Styling === */
+.stRadio > div[role="radiogroup"] label {
+    color: #F5F5F5 !important; /* default light gray */
     font-size: 1.1em;
-}
-.stRadio input:checked + label {
-    color: #FFD700; /* Gold text for selected option */
-    background-color: #4B0082; /* Purple background for selected */
+    transition: all 0.25s ease;
+    padding: 4px 6px;
     border-radius: 5px;
-    padding: 4px;
+    cursor: pointer;
 }
+.stRadio > div[role="radiogroup"] label:hover {
+    color: #FFD700 !important; /* gold text */
+    background-color: rgba(75, 0, 130, 0.4); /* subtle purple hover */
+}
+.stRadio > div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) {
+    color: #FFD700 !important; /* gold text for selected */
+    background-color: #4B0082; /* purple background */
+    border: 1px solid #FFD700;
+    border-radius: 5px;
+    padding: 4px 6px;
+    transform: scale(1.02);
+}
+
+/* Optional: make the actual radio circle gold/purple too */
+input[type="radio"] {
+    accent-color: #FFD700; /* gold */
+}
+
 .snap-animation {
     animation: fadeIn 1s ease-in-out;
 }
@@ -205,7 +223,6 @@ if st.session_state.rosters_fetched and not st.session_state.show_gif and not st
         submit_immunities = st.form_submit_button("Confirm Selections and Perform Thanos Snap")
 
     if submit_immunities:
-        # Check if all teams have a selection (not "None")
         if all(st.session_state.immune_players[team] is not None for team in st.session_state.team_rosters):
             st.session_state.show_gif = True
             st.rerun()
@@ -225,20 +242,17 @@ if st.session_state.show_gif and not st.session_state.snap_done:
     except FileNotFoundError:
         st.image("https://media.giphy.com/media/3o7btPCcdN6Yk4tW4I/giphy.gif", width=300, caption="Thanos Snap")
 
-    # Simulate snap processing with spinner
     with st.spinner("Thanos is snapping his fingers..."):
-        time.sleep(3)  # Show GIF for 3 seconds
-        # Perform Thanos Snap
+        time.sleep(3)
         snap_results = {}
         for team_name, players in st.session_state.team_rosters.items():
             immune_player = st.session_state.immune_players.get(team_name)
             eligible_players = [p for p in players if p != immune_player]
             num_to_eliminate = (len(players) - (1 if immune_player else 0)) // 2
-            num_to_eliminate = max(0, num_to_eliminate)  # Ensure non-negative
+            num_to_eliminate = max(0, num_to_eliminate)
             eliminated_players = random.sample(eligible_players, min(num_to_eliminate, len(eligible_players)))
             snap_results[team_name] = eliminated_players
         
-        # Update session state to hide GIF and show results
         st.session_state.show_gif = False
         st.session_state.snap_done = True
         st.session_state.snap_results = snap_results
