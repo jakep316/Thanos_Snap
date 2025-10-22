@@ -99,18 +99,25 @@ st.markdown("""
     background-color: #333333;
 }
 .stRadio label {
-    color: #F5F5F5;
+    color: #FFFFFF; /* White text for high contrast */
     font-size: 1.1em;
-    background-color: #3a3a3a;
-    padding: 6px;
+    background-color: #4a4a4a; /* Lighter background */
+    padding: 8px;
     border-radius: 5px;
-    border: 1px solid #4B0082;
-    margin-bottom: 4px;
+    border: 1px solid #FFD700; /* Gold border for theme */
+    margin-bottom: 6px;
+    display: block;
+}
+.stRadio input:checked + label {
+    background-color: #6B238E; /* Slightly lighter purple for selected option */
+    color: #FFD700; /* Gold text for selected */
+    font-weight: bold;
 }
 .stRadio div {
     background-color: #2b2b2b;
-    padding: 10px;
+    padding: 12px;
     border-radius: 5px;
+    border: 1px solid #4B0082;
 }
 .snap-animation {
     animation: fadeIn 1s ease-in-out;
@@ -206,6 +213,11 @@ if st.session_state.rosters_fetched and not st.session_state.show_gif and not st
                 )
             else:
                 st.session_state.immune_players[team_name] = None
+            # Debug: Display current selection
+            if st.session_state.immune_players[team_name]:
+                st.write(f"Current immune player for {team_name}: {st.session_state.immune_players[team_name]['name']}")
+            else:
+                st.write(f"No immune player selected for {team_name}")
         submit_immunities = st.form_submit_button("Confirm Selections and Perform Thanos Snap")
 
     if submit_immunities:
