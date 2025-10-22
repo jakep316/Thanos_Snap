@@ -1,3 +1,4 @@
 streamlit
 requests
 sleeper-api-wrapper
+pandas
