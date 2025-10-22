@@ -99,31 +99,43 @@ st.markdown("""
     background-color: #333333;
 }
 
-/* === Updated Radio Button Styling === */
-.stRadio > div[role="radiogroup"] label {
-    color: #F5F5F5 !important; /* default light gray */
-    font-size: 1.1em;
-    transition: all 0.25s ease;
-    padding: 4px 6px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-.stRadio > div[role="radiogroup"] label:hover {
-    color: #FFD700 !important; /* gold text */
-    background-color: rgba(75, 0, 130, 0.4); /* subtle purple hover */
-}
-.stRadio > div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) {
-    color: #FFD700 !important; /* gold text for selected */
-    background-color: #4B0082; /* purple background */
-    border: 1px solid #FFD700;
-    border-radius: 5px;
-    padding: 4px 6px;
-    transform: scale(1.02);
+/* === More aggressive radio label styling to target nested text === */
+.stRadio, 
+.stRadio * {
+    color: #F5F5F5 !important;   /* default light text for everything inside stRadio */
+    opacity: 1 !important;       /* ensure no translucency */
+    -webkit-text-fill-color: #F5F5F5 !important; /* for certain browsers */
 }
 
-/* Optional: make the actual radio circle gold/purple too */
+/* Target the label container and inner text nodes specifically */
+.stRadio > div[role="radiogroup"] label,
+.stRadio > div[role="radiogroup"] label div,
+.stRadio > div[role="radiogroup"] label span,
+.stRadio > div[role="radiogroup"] label div > div {
+    color: #F5F5F5 !important;
+    opacity: 1 !important;
+}
+
+/* Keep hover & selected visuals (gold + purple) */
+.stRadio > div[role="radiogroup"] label:hover {
+    color: #FFD700 !important;
+    background-color: rgba(75, 0, 130, 0.4) !important;
+}
+.stRadio > div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked),
+.stRadio > div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) div,
+.stRadio > div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) span {
+    color: #FFD700 !important;
+    background-color: #4B0082 !important;
+    border: 1px solid #FFD700 !important;
+    padding: 4px 6px !important;
+    border-radius: 5px !important;
+    transform: scale(1.02);
+    opacity: 1 !important;
+}
+
+/* Radio circle color */
 input[type="radio"] {
-    accent-color: #FFD700; /* gold */
+    accent-color: #FFD700 !important;
 }
 
 .snap-animation {
@@ -276,3 +288,4 @@ if st.session_state.snap_done and 'snap_results' in st.session_state:
             st.dataframe(player_data, use_container_width=True, hide_index=True)
         else:
             st.write("No players eliminated (empty roster).")
+
