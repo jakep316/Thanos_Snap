@@ -53,6 +53,20 @@ st.markdown("""
     color: #4B0082;
     transform: scale(1.05);
 }
+.stFormSubmitButton>button {
+    background-color: #4B0082;
+    color: #FFD700;
+    border: 2px solid #FFD700;
+    border-radius: 10px;
+    font-size: 1.2em;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+.stFormSubmitButton>button:hover {
+    background-color: #FFD700;
+    color: #4B0082;
+    transform: scale(1.05);
+}
 .stTextInput label {
     color: #F5F5F5;
     font-size: 1.2em;
@@ -87,6 +101,16 @@ st.markdown("""
 .stRadio label {
     color: #F5F5F5;
     font-size: 1.1em;
+    background-color: #3a3a3a;
+    padding: 6px;
+    border-radius: 5px;
+    border: 1px solid #4B0082;
+    margin-bottom: 4px;
+}
+.stRadio div {
+    background-color: #2b2b2b;
+    padding: 10px;
+    border-radius: 5px;
 }
 .snap-animation {
     animation: fadeIn 1s ease-in-out;
@@ -160,13 +184,18 @@ elif fetch_button and not league_id:
 # Player selection screen
 if st.session_state.rosters_fetched and not st.session_state.show_gif and not st.session_state.snap_done:
     st.markdown('<div class="snap-animation"><h2>Select One Immune Player Per Team</h2></div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div style='color: #B0C4DE; text-align: center; font-size: 1.2em;'>
+    You can only save one! Choose wisely, for balance demands sacrifice!
+    </div>
+    """, unsafe_allow_html=True)
     with st.form("immune_players_form"):
         for team_name, players in st.session_state.team_rosters.items():
             st.subheader(f"Team: {team_name}")
             player_options = [f"{player['name']} ({player['position']})" for player in players]
             player_options.insert(0, "None")  # Allow no selection initially
             selected_player = st.radio(
-                f"Select immune player for {team_name}",
+                f"Select the one player to save from the snap for {team_name}",
                 options=player_options,
                 index=0,
                 key=f"immune_{team_name}"
@@ -180,7 +209,7 @@ if st.session_state.rosters_fetched and not st.session_state.show_gif and not st
         submit_immunities = st.form_submit_button("Confirm Selections and Perform Thanos Snap")
 
     if submit_immunities:
-        # Check if all teams have a selection or "None"
+        # Check if all teams have a selection (not "None")
         if all(st.session_state.immune_players[team] is not None for team in st.session_state.team_rosters):
             st.session_state.show_gif = True
             st.rerun()
