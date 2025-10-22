@@ -133,10 +133,6 @@ st.markdown("""
     opacity: 1 !important;
 }
 
-/* Radio circle color */
-input[type="radio"] {
-    accent-color: #FFD700 !important;
-}
 
 .snap-animation {
     animation: fadeIn 1s ease-in-out;
@@ -288,4 +284,5 @@ if st.session_state.snap_done and 'snap_results' in st.session_state:
             st.dataframe(player_data, use_container_width=True, hide_index=True)
         else:
             st.write("No players eliminated (empty roster).")
+
 
