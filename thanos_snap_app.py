@@ -99,7 +99,7 @@ st.markdown("""
     background-color: #333333;
 }
 .stRadio label {
-    color: #FFD700; /* Bright yellow for player names */
+    color: #4B0082; /* Thanos purple for player names */
     font-size: 1.1em;
     font-weight: bold;
     padding: 4px;
