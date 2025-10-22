@@ -99,25 +99,17 @@ st.markdown("""
     background-color: #333333;
 }
 .stRadio label {
-    color: #FFFFFF; /* White text for high contrast */
+    color: #FFD700; /* Bright yellow for player names */
     font-size: 1.1em;
-    background-color: #4a4a4a; /* Lighter background */
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #FFD700; /* Gold border for theme */
-    margin-bottom: 6px;
-    display: block;
+    font-weight: bold;
+    padding: 4px;
+    margin-bottom: 4px;
 }
 .stRadio input:checked + label {
-    background-color: #6B238E; /* Slightly lighter purple for selected option */
-    color: #FFD700; /* Gold text for selected */
-    font-weight: bold;
-}
-.stRadio div {
-    background-color: #2b2b2b;
-    padding: 12px;
+    color: #FFFFFF; /* White text for selected option */
+    background-color: #4B0082; /* Purple background for selected */
     border-radius: 5px;
-    border: 1px solid #4B0082;
+    padding: 4px;
 }
 .snap-animation {
     animation: fadeIn 1s ease-in-out;
@@ -205,7 +197,7 @@ if st.session_state.rosters_fetched and not st.session_state.show_gif and not st
                 f"Select the one player to save from the snap for {team_name}",
                 options=player_options,
                 index=0,
-                key=f"immune_{team_name}"
+                key=f"immune_{team_name}_{random.randint(0, 10000)}"  # Unique key
             )
             if selected_player != "None":
                 st.session_state.immune_players[team_name] = next(
