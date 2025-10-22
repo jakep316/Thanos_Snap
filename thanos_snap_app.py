@@ -5,16 +5,22 @@ import base64
 import time
 import pandas as pd
 
-# Initialize session state for GIF visibility
+# Initialize session state
 if 'show_gif' not in st.session_state:
     st.session_state.show_gif = False
 if 'snap_done' not in st.session_state:
     st.session_state.snap_done = False
+if 'rosters_fetched' not in st.session_state:
+    st.session_state.rosters_fetched = False
+if 'team_rosters' not in st.session_state:
+    st.session_state.team_rosters = {}
+if 'immune_players' not in st.session_state:
+    st.session_state.immune_players = {}
 
 # Streamlit page configuration
 st.set_page_config(page_title="Thanos Snap Fantasy Football", page_icon="🧤", layout="wide")
 
-# Custom CSS for Thanos theme with improved readability
+# Custom CSS for Thanos theme
 st.markdown("""
 <style>
 .stApp {
@@ -23,7 +29,7 @@ st.markdown("""
     font-family: 'Arial', sans-serif;
 }
 .title {
-    color: #FFD700; /* Gold for Infinity Gauntlet */
+    color: #FFD700;
     text-align: center;
     font-size: 3em;
     text-shadow: 0 0 10px #4B0082;
@@ -34,7 +40,7 @@ st.markdown("""
     font-size: 1.5em;
 }
 .stButton>button {
-    background-color: #4B0082; /* Purple for Thanos */
+    background-color: #4B0082;
     color: #FFD700;
     border: 2px solid #FFD700;
     border-radius: 10px;
@@ -48,35 +54,39 @@ st.markdown("""
     transform: scale(1.05);
 }
 .stTextInput label {
-    color: #F5F5F5; /* Light gray for input label */
+    color: #F5F5F5;
     font-size: 1.2em;
 }
 .stTextInput input {
-    background-color: #3a3a3a; /* Lighter background for input */
-    color: #FFFFFF; /* White text for input */
-    border: 1px solid #FFD700; /* Gold border */
+    background-color: #3a3a3a;
+    color: #FFFFFF;
+    border: 1px solid #FFD700;
     border-radius: 5px;
     padding: 8px;
 }
 .stTextInput input::placeholder {
-    color: #B0C4DE; /* Light blue placeholder for contrast */
+    color: #B0C4DE;
 }
 .stDataFrame {
-    background-color: #3a3a3a; /* Lighter background for tables */
+    background-color: #3a3a3a;
     border-radius: 10px;
     padding: 10px;
-    border: 1px solid #FFD700; /* Gold border */
+    border: 1px solid #FFD700;
 }
 .stDataFrame table {
-    color: #F5F5F5; /* Light gray/white for table text */
+    color: #F5F5F5;
     font-size: 1.1em;
 }
 .stDataFrame th, .stDataFrame td {
-    border: 1px solid #4B0082; /* Purple borders for table cells */
+    border: 1px solid #4B0082;
     padding: 8px;
 }
 .stDataFrame tr:nth-child(even) {
-    background-color: #333333; /* Alternating row color */
+    background-color: #333333;
+}
+.stRadio label {
+    color: #F5F5F5;
+    font-size: 1.1em;
 }
 .snap-animation {
     animation: fadeIn 1s ease-in-out;
@@ -92,14 +102,14 @@ st.markdown("""
 st.markdown('<div class="title">🧤 Thanos Snap Fantasy Football</div>', unsafe_allow_html=True)
 st.markdown("""
 <div class="subtitle">
-Enter your Sleeper league ID, and Thanos will snap his fingers to randomly eliminate half of each team's roster. Perfectly balanced, as all things should be.
+Enter your Sleeper league ID, select one immune player per team, and Thanos will snap his fingers to eliminate half of each team's roster (excluding immune players). Perfectly balanced, as all things should be.
 </div>
 """, unsafe_allow_html=True)
 
 # Input section for league ID
 with st.container():
     league_id = st.text_input("Enter your Sleeper League ID", placeholder="e.g., 123456789012345678")
-    snap_button = st.button("Perform Thanos Snap")
+    fetch_button = st.button("Fetch Rosters")
 
 # Initialize Players object for player data
 @st.cache_data
@@ -109,41 +119,13 @@ def get_player_data():
 
 player_data = get_player_data()
 
-# Handle button click
-if snap_button and league_id:
+# Handle roster fetch
+if fetch_button and league_id:
     try:
-        # Reset snap_done state
-        st.session_state.snap_done = False
-        # Show GIF
-        st.session_state.show_gif = True
-        # Force rerun to display GIF immediately
-        st.rerun()
-
-    except Exception as e:
-        st.error(f"Error: {e}. Please check your league ID and try again.")
-elif snap_button and not league_id:
-    st.warning("Please enter a valid Sleeper League ID.")
-
-# Display GIF if show_gif is True
-if st.session_state.show_gif and not st.session_state.snap_done:
-    try:
-        with open("assets/thanos_snap.gif", "rb") as file:
-            contents = file.read()
-            data_url = base64.b64encode(contents).decode("utf-8")
-            st.markdown(
-                f'<img src="data:image/gif;base64,{data_url}" width="300" style="display: block; margin: 0 auto;">',
-                unsafe_allow_html=True
-            )
-    except FileNotFoundError:
-        st.image("https://media.giphy.com/media/3o7btPCcdN6Yk4tW4I/giphy.gif", width=300, caption="Thanos Snap")
-
-    # Simulate snap processing with spinner
-    with st.spinner("Thanos is snapping his fingers..."):
-        time.sleep(3)  # Show GIF for 3 seconds
-        # Perform API calls and snap logic
         league = League(league_id)
-        rosters = league.get_rosters()
-        users = league.get_users()
+        with st.spinner("Fetching league rosters..."):
+            rosters = league.get_rosters()
+            users = league.get_users()
         
         # Create team rosters dictionary
         team_rosters = {}
@@ -164,11 +146,71 @@ if st.session_state.show_gif and not st.session_state.snap_done:
             ]
             team_rosters[team_name] = roster_players
         
+        st.session_state.team_rosters = team_rosters
+        st.session_state.rosters_fetched = True
+        st.session_state.show_gif = False
+        st.session_state.snap_done = False
+        st.session_state.immune_players = {team: None for team in team_rosters}
+        st.rerun()
+    except Exception as e:
+        st.error(f"Error: {e}. Please check your league ID and try again.")
+elif fetch_button and not league_id:
+    st.warning("Please enter a valid Sleeper League ID.")
+
+# Player selection screen
+if st.session_state.rosters_fetched and not st.session_state.show_gif and not st.session_state.snap_done:
+    st.markdown('<div class="snap-animation"><h2>Select One Immune Player Per Team</h2></div>', unsafe_allow_html=True)
+    with st.form("immune_players_form"):
+        for team_name, players in st.session_state.team_rosters.items():
+            st.subheader(f"Team: {team_name}")
+            player_options = [f"{player['name']} ({player['position']})" for player in players]
+            player_options.insert(0, "None")  # Allow no selection initially
+            selected_player = st.radio(
+                f"Select immune player for {team_name}",
+                options=player_options,
+                index=0,
+                key=f"immune_{team_name}"
+            )
+            if selected_player != "None":
+                st.session_state.immune_players[team_name] = next(
+                    (p for p in players if f"{p['name']} ({p['position']})" == selected_player), None
+                )
+            else:
+                st.session_state.immune_players[team_name] = None
+        submit_immunities = st.form_submit_button("Confirm Selections and Perform Thanos Snap")
+
+    if submit_immunities:
+        # Check if all teams have a selection or "None"
+        if all(st.session_state.immune_players[team] is not None for team in st.session_state.team_rosters):
+            st.session_state.show_gif = True
+            st.rerun()
+        else:
+            st.warning("Please select one immune player for each team.")
+
+# Display GIF if show_gif is True
+if st.session_state.show_gif and not st.session_state.snap_done:
+    try:
+        with open("assets/thanos_snap.gif", "rb") as file:
+            contents = file.read()
+            data_url = base64.b64encode(contents).decode("utf-8")
+            st.markdown(
+                f'<img src="data:image/gif;base64,{data_url}" width="300" style="display: block; margin: 0 auto;">',
+                unsafe_allow_html=True
+            )
+    except FileNotFoundError:
+        st.image("https://media.giphy.com/media/3o7btPCcdN6Yk4tW4I/giphy.gif", width=300, caption="Thanos Snap")
+
+    # Simulate snap processing with spinner
+    with st.spinner("Thanos is snapping his fingers..."):
+        time.sleep(3)  # Show GIF for 3 seconds
         # Perform Thanos Snap
         snap_results = {}
-        for team_name, players in team_rosters.items():
-            num_to_eliminate = len(players) // 2
-            eliminated_players = random.sample(players, num_to_eliminate)
+        for team_name, players in st.session_state.team_rosters.items():
+            immune_player = st.session_state.immune_players.get(team_name)
+            eligible_players = [p for p in players if p != immune_player]
+            num_to_eliminate = (len(players) - (1 if immune_player else 0)) // 2
+            num_to_eliminate = max(0, num_to_eliminate)  # Ensure non-negative
+            eliminated_players = random.sample(eligible_players, min(num_to_eliminate, len(eligible_players)))
             snap_results[team_name] = eliminated_players
         
         # Update session state to hide GIF and show results
@@ -184,6 +226,9 @@ if st.session_state.snap_done and 'snap_results' in st.session_state:
     
     for team_name, eliminated_players in st.session_state.snap_results.items():
         st.subheader(f"Team: {team_name}")
+        immune_player = st.session_state.immune_players.get(team_name)
+        if immune_player:
+            st.markdown(f"**Immune Player**: {immune_player['name']} ({immune_player['position']})")
         if eliminated_players:
             player_data = pd.DataFrame([
                 {"Player Name": player['name'], "Position": player['position']}
